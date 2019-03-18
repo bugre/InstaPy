@@ -1678,6 +1678,7 @@ class InstaPy:
         if self.aborting:
             return self
 
+        tag = ""
         liked_img = 0
         already_liked = 0
         inap_img = 0
