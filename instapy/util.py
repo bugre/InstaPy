@@ -779,7 +779,7 @@ def delete_line_from_file(filepath, userToDelete, logger):
         os.remove(file_path_old)
 
     except BaseException as e:
-        logger.error("delete_line_from_file error {}\n{}".format(
+        logger.error("delete_line_from_file error {}\n".format(
             str(e).encode("utf-8")))
 
 
@@ -2111,15 +2111,25 @@ def parse_cli_args():
     return args
 
 
-def get_cord_location(browser, location):
+def get_cord_location(browser, location, logger):
+    data = {}
     base_url = 'https://www.instagram.com/explore/locations/'
     query_url = '{}{}{}'.format(base_url, location, "?__a=1")
     browser.get(query_url)
     json_text = browser.find_element_by_xpath('//body').text
-    data = json.loads(json_text)
 
-    lat = data['graphql']['location']['lat']
-    lon = data['graphql']['location']['lng']
+    if not (len(json_text) > 0):
+        return {}
+
+    try:
+        data = json.loads(json_text)
+    except json.JSONDecodeError as e:
+        logger.error('Location: [{}] not found! Invalid JSON: {}'.format(location, str(e)))
+        return {}
+
+    ## will return 'None' to lat/lon, if any key isn't found
+    lat = data.get('graphql', {}).get('location', {}).get('lat')
+    lon = data.get('graphql', {}).get('location', {}).get('lng')
 
     return lat, lon
 

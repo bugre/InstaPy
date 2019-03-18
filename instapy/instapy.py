@@ -663,7 +663,12 @@ class InstaPy:
             return self
 
         for location in locations:
-            lat, lon = get_cord_location(self.browser, location)
+            # take a nap, to try avoid HTTP Status 429 punishment 
+            sleep(random.randint(1, 3))
+            lat, lon = get_cord_location(self.browser, location, logger=self.logger)
+            if not lat or not lon:
+                self.logger.warning(u'Location: {} cordinates not found!'.format(location))
+                continue
 
             bbox = get_bounding_box(lat,
                                     lon,
